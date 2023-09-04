@@ -402,10 +402,10 @@ RegisterNetEvent("rsg-vendor:client:vendorInvReFillInput", function(data)
 
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         for k, v in pairs(PlayerData.items) do
-            if amount >= tonumber(Refill.qt) then
+            if amount >= tonumber(Refill.qt) and tonumber(Refill.qtp) ~= nil then
                 TriggerServerEvent('rsg-vendor:server:vendorInvReFill', currentvendor, name, Refill.qt, tonumber(Refill.qtp))
             else
-                RSGCore.Functions.Notify(("Invalid Amount"), 'error')
+                RSGCore.Functions.Notify('Something went wrong, check you have the correct amount and price!', 'error')
             end
             return
         end
