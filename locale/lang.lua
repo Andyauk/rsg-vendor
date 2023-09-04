@@ -51,7 +51,7 @@ local en = {
     manage_in_name_sub = 'A new name for your stall?! ',
     manage_in_give_market = 'Give the stall',
     manage_in_give_market_sub = 'Care, irreversible action',
-	buy_price = 'Price',
+    buy_price = 'Price',
   },
 
   input  = {
@@ -65,7 +65,7 @@ local en = {
     refill = 'Sale',
     howmany_buy = 'How many do you want to buy?',
     qt = 'How many ?',
-	refill_price = 'Sell Price',
+    refill_price = 'Sell Price',
   },
 
   rob = {

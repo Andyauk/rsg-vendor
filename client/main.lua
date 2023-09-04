@@ -6,7 +6,7 @@ local currentvendor = nil
 -------------------------------------------------------------------------------------------
 
 local function ClearMenu()
-	exports['rsg-menu']:closeMenu()
+    exports['rsg-menu']:closeMenu()
 end
 
 local function closeMenuFull()
@@ -37,7 +37,7 @@ RegisterNetEvent("rsg-vendor:client:vendorMenu", function()
             vendorMenuFirst[#vendorMenuFirst+1] = {
                 header = Lang:t('menu.buy'),
                 icon = 'fa-solid fa-file-invoice-dollar',
-                txt = Lang:t('menu.buy_sub').." : $" ..Config.Market[currentvendor].price,
+                txt = Lang:t('menu.buy_sub').." : $" ..string.format("%.2f", Config.Market[currentvendor].price),
                 params = {
                     event = "rsg-vendor:client:vendorAchat",
                     args = currentvendor
@@ -157,7 +157,7 @@ RegisterNetEvent("rsg-vendor:client:vendorInv", function(store_inventory, data)
             if store_inventory[k].stock > 0 then
             vendorMenuItem[#vendorMenuItem+1] = {
                 header = "<img src=nui://rsg-inventory/html/images/"..RSGCore.Shared.Items[store_inventory[k].items].image.." width=20px> ‎ ‎ "..RSGCore.Shared.Items[store_inventory[k].items].label,
-                txt = Lang:t('menu.instock')..": "..store_inventory[k].stock.." | "..Lang:t('menu.price')..": $"..store_inventory[k].price,
+                txt = Lang:t('menu.instock')..": "..store_inventory[k].stock.." | "..Lang:t('menu.price')..": $"..string.format("%.2f", store_inventory[k].price),
                 params = {
                     event = "rsg-vendor:client:vendorInvInput",
                     args = store_inventory[k],
@@ -210,7 +210,7 @@ RegisterNetEvent("rsg-vendor:client:vendorInvReFull", function()
                     },
                 }
                 for k, v in pairs(PlayerData.items) do
-					--print(PlayerData.items[k].name.." "..PlayerData.items[k].amount)
+                    --print(PlayerData.items[k].name.." "..PlayerData.items[k].amount)
                     if PlayerData.items[k].amount > 0 and PlayerData.items[k].type == "item" then
                     vendorMenuInvItem[#vendorMenuInvItem+1] = {
                         header = "<img src=nui://rsg-inventory/html/images/"..PlayerData.items[k].image.." width=20px> ‎ ‎ "..PlayerData.items[k].label,
@@ -249,7 +249,7 @@ RegisterNetEvent("rsg-vendor:client:vendorCheckMoney", function()
                 },
             }
             vendorMenuMoney[#vendorMenuMoney+1] = {
-                header = Lang:t('menu.currentmoney').." : $" ..checkmoney.money,
+                header = Lang:t('menu.currentmoney').." : $" ..string.format("%.2f", checkmoney.money),
                 txt = "",
                 isMenuHeader = true
             }
@@ -279,7 +279,7 @@ RegisterNetEvent("rsg-vendor:client:vendorAchat", function(currentvendor)
         local vendorAchat = {
             {
                 header = "| "..Lang:t('menu.market').." : " ..result[1].displayname.." |",
-                txt = Lang:t('menu.buy_price').." : $" ..Config.Market[currentvendor].price,
+                txt = Lang:t('menu.buy_price').." : $" ..string.format("%.2f", Config.Market[currentvendor].price),
                 isMenuHeader = true
             },
         }
@@ -375,15 +375,15 @@ RegisterNetEvent("rsg-vendor:client:vendorWithdraw", function(checkmoney)
     local money = checkmoney.money
 
     local Withdraw = exports['rsg-input']:ShowInput({
-        header = Lang:t('input.withdraw').." : (Max : $"..money..")",
+        header = Lang:t('input.withdraw').." : (Max : $"..string.format("%.2f", money)..")",
         submitText = Lang:t('input.validate'),
         inputs = {
-            {text = Lang:t('input.withdraw_champ'), name = "qt", type = "number", isRequired = true, }
+            {text = Lang:t('input.withdraw_champ'), name = "qt", type = "text", isRequired = true, }
         },
     })
 
     if Withdraw ~= nil then 
-        TriggerServerEvent('rsg-vendor:server:vendorWithdraw', currentvendor, Withdraw.qt)
+        TriggerServerEvent('rsg-vendor:server:vendorWithdraw', currentvendor, tonumber(Withdraw.qt))
     end
 end)
 
@@ -396,14 +396,14 @@ RegisterNetEvent("rsg-vendor:client:vendorInvReFillInput", function(data)
         submitText = Lang:t('input.validate'),
         inputs = {
             {text = Lang:t('input.qt'), name = "qt", type = "number", isRequired = true, },
-            {text = Lang:t('input.refill_price'), name = "qtp", type = "number", isRequired = true, },
+            {text = Lang:t('input.refill_price'), name = "qtp", type = "text", isRequired = true, },
         },
     })
 
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         for k, v in pairs(PlayerData.items) do
             if amount >= tonumber(Refill.qt) then
-                TriggerServerEvent('rsg-vendor:server:vendorInvReFill', currentvendor, name, Refill.qt, Refill.qtp)
+                TriggerServerEvent('rsg-vendor:server:vendorInvReFill', currentvendor, name, Refill.qt, tonumber(Refill.qtp))
             else
                 RSGCore.Functions.Notify(("Invalid Amount"), 'error')
             end
