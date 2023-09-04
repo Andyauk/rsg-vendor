@@ -342,68 +342,100 @@ end)
 -- Input
 -------------------------------------------------------------------------------------------
 
-RegisterNetEvent("rsg-vendor:client:vendorGiveBusiness", function()
-    local dialoggive = exports['rsg-input']:ShowInput({
-        header = Lang:t('input.give_market'),
-        submitText = Lang:t('input.validate'),
-        inputs = {
-            {text = Lang:t('input.give_market_champ'), name = "tocid", type = "text", isRequired = true, }
+-- change owner
+RegisterNetEvent('rsg-vendor:client:vendorGiveBusiness', function()
+    local input = lib.inputDialog(Lang:t('input.give_market'), {
+        { 
+            label = Lang:t('input.give_market_champ'),
+            type = 'input',
+            required = true,
         },
     })
+    
+    if not input then
+        return
+    end
 
-    if dialoggive ~= nil then
-            TriggerServerEvent('rsg-vendor:server:vendorGiveBusiness', currentvendor, dialoggive.tocid)
+    TriggerServerEvent('rsg-vendor:server:vendorGiveBusiness', currentvendor, input[1])
+
+end)
+
+-- change name
+RegisterNetEvent('rsg-vendor:client:vendorName', function()
+    local input = lib.inputDialog(Lang:t('input.name'), {
+        { 
+            label = Lang:t('input.name_champ'),
+            type = 'input',
+            required = true,
+        },
+    })
+    
+    if not input then
+        return
+    end
+
+    TriggerServerEvent('rsg-vendor:server:vendorName', currentvendor, input[1])
+
+end)
+
+-- vendor withdraw
+RegisterNetEvent('rsg-vendor:client:vendorWithdraw', function(checkmoney)
+	local money = checkmoney.money
+    local input = lib.inputDialog('Max Withdraw: $'..string.format("%.2f", money), {
+        { 
+            label = Lang:t('input.withdraw_champ'),
+            type = 'input',
+            required = true,
+            icon = 'fa-solid fa-dollar-sign'
+        },
+    })
+    
+    if not input then
+        return
+    end
+	
+	if tonumber(input[1]) == nil then
+		return
+	end
+
+	if money >= tonumber(input[1]) then
+        TriggerServerEvent('rsg-vendor:server:vendorWithdraw', currentvendor, tonumber(input[1]))
+    else
+        RSGCore.Functions.Notify(("Invalid Amount"), 'error')
     end
 end)
 
-RegisterNetEvent("rsg-vendor:client:vendorName", function()
-
-    local ChangeName = exports['rsg-input']:ShowInput({
-        header = Lang:t('input.name'),
-        submitText = Lang:t('input.validate'),
-        inputs = {
-            {text = Lang:t('input.name_champ'), name = "name", type = "text", isRequired = true, }
-        },
-    })
-
-    if ChangeName ~= nil then 
-        TriggerServerEvent('rsg-vendor:server:vendorName', currentvendor, ChangeName.name)
-    end
-end)
-
-RegisterNetEvent("rsg-vendor:client:vendorWithdraw", function(checkmoney)
-    local money = checkmoney.money
-
-    local Withdraw = exports['rsg-input']:ShowInput({
-        header = Lang:t('input.withdraw').." : (Max : $"..string.format("%.2f", money)..")",
-        submitText = Lang:t('input.validate'),
-        inputs = {
-            {text = Lang:t('input.withdraw_champ'), name = "qt", type = "text", isRequired = true, }
-        },
-    })
-
-    if Withdraw ~= nil then 
-        TriggerServerEvent('rsg-vendor:server:vendorWithdraw', currentvendor, tonumber(Withdraw.qt))
-    end
-end)
-
-RegisterNetEvent("rsg-vendor:client:vendorInvReFillInput", function(data)
+-- vendor add items from inventory
+RegisterNetEvent('rsg-vendor:client:vendorInvReFillInput', function(data)
     local name = data
     local label = data.label
     local amount = data.amount
-    local Refill = exports['rsg-input']:ShowInput({
-        header = Lang:t('input.refill').." : "..label,
-        submitText = Lang:t('input.validate'),
-        inputs = {
-            {text = Lang:t('input.qt'), name = "qt", type = "number", isRequired = true, },
-            {text = Lang:t('input.refill_price'), name = "qtp", type = "text", isRequired = true, },
+    local input = lib.inputDialog(Lang:t('input.refill').." : "..label, {
+        { 
+            label = Lang:t('input.qt'),
+            description = 'must have the amount in your inventory',
+            type = 'number',
+            required = true,
+            icon = 'hashtag'
+        },
+        { 
+            label = Lang:t('input.refill_price'),
+            description = 'example: 0.10',
+            default = '0.10',
+            type = 'input',
+            required = true,
+            icon = 'fa-solid fa-dollar-sign'
         },
     })
-
+    
+    if not input then
+        return
+    end
+    
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         for k, v in pairs(PlayerData.items) do
-            if amount >= tonumber(Refill.qt) and tonumber(Refill.qtp) ~= nil then
-                TriggerServerEvent('rsg-vendor:server:vendorInvReFill', currentvendor, name, Refill.qt, tonumber(Refill.qtp))
+            if amount >= tonumber(input[1]) and tonumber(input[2]) ~= nil then
+                TriggerServerEvent('rsg-vendor:server:vendorInvReFill', currentvendor, name, input[1], tonumber(input[2]))
             else
                 RSGCore.Functions.Notify('Something went wrong, check you have the correct amount and price!', 'error')
             end
@@ -412,20 +444,26 @@ RegisterNetEvent("rsg-vendor:client:vendorInvReFillInput", function(data)
     end)
 end)
 
-RegisterNetEvent("rsg-vendor:client:vendorInvInput", function(data)
+-- buy vendor items
+RegisterNetEvent('rsg-vendor:client:vendorInvInput', function(data)
     local name = data.items
-    local prix = data.price
+    local price = data.price
     local stock = data.stock
-
-    local howmany = exports['rsg-input']:ShowInput({
-        header = Lang:t('input.howmany_buy').." ("..RSGCore.Shared.Items[name].label.." | $"..prix.." | Stock: "..stock..")",
-        submitText = Lang:t('input.validate'),
-        inputs = {
-            {text = Lang:t('input.qt'), name = "qt", type = "number", isRequired = true, }
+    local input = lib.inputDialog(RSGCore.Shared.Items[name].label.." | $"..string.format("%.2f", price).." | Stock: "..stock, {
+        { 
+            label = Lang:t('input.qt'),
+            type = 'number',
+            required = true,
+            icon = 'hashtag'
         },
     })
-    if stock >= tonumber(howmany.qt) then
-        TriggerServerEvent('rsg-vendor:server:vendorPurchaseItem', currentvendor, name, howmany.qt)
+    
+    if not input then
+        return
+    end
+    
+    if stock >= tonumber(input[1]) then
+        TriggerServerEvent('rsg-vendor:server:vendorPurchaseItem', currentvendor, name, input[1])
     else
         RSGCore.Functions.Notify(("Invalid Amount"), 'error')
     end

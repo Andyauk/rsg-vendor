@@ -6,6 +6,7 @@ author 'Kz#5669 and RexShack#3041'
 description 'rsg-vendor'
 
 shared_scripts {
+    '@ox_lib/init.lua',
     '@rsg-core/shared/locale.lua',
     'locale/lang.lua',
     'config.lua'
@@ -22,7 +23,8 @@ dependencies {
     'rsg-core',
     'rsg-menu',
     'rsg-input',
-    'rsg-inventory'
+    'rsg-inventory',
+    'ox_lib'
 }
 
 lua54 'yes'
