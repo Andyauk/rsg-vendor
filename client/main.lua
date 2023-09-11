@@ -2,339 +2,228 @@ local RSGCore = exports['rsg-core']:GetCoreObject()
 local currentvendor = nil
 
 -------------------------------------------------------------------------------------------
--- Little Function
--------------------------------------------------------------------------------------------
-
-local function ClearMenu()
-    exports['rsg-menu']:closeMenu()
-end
-
-local function closeMenuFull()
-    currentvendor = nil
-    ClearMenu()
-end
-
-RegisterNetEvent("rsg-vendor:client:closemenu")
-AddEventHandler("rsg-vendor:client:closemenu", function()
-    closeMenuFull()
-end)
-
--------------------------------------------------------------------------------------------
 -- Menu
 -------------------------------------------------------------------------------------------
 
-RegisterNetEvent("rsg-vendor:client:vendorMenu", function()
-    --print(currentvendor)
+-- main menu system
+RegisterNetEvent('rsg-vendor:client:vendorMenu', function()
     RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorOwned', function(result)
         if result == nil then
-            --print(currentvendor)
-            local vendorMenuFirst = {
-                {
-                    header = Lang:t('menu.market'),
-                    isMenuHeader = true
-                },
-            }
-            vendorMenuFirst[#vendorMenuFirst+1] = {
-                header = Lang:t('menu.buy'),
-                icon = 'fa-solid fa-file-invoice-dollar',
-                txt = Lang:t('menu.buy_sub').." : $" ..string.format("%.2f", Config.Market[currentvendor].price),
-                params = {
-                    event = "rsg-vendor:client:vendorAchat",
-                    args = currentvendor
+            lib.registerContext({
+                id = 'buy_menu',
+                title = 'Buy Market Stall',
+                options = {
+                    {
+                        title = 'Buy Market Stall',
+                        description = Lang:t('menu.buy_sub').." : $" ..string.format("%.2f", Config.Market[currentvendor].price),
+                        icon = 'fa-solid fa-file-invoice-dollar',
+                        serverEvent = 'rsg-vendor:server:vendorBuyStall',
+                        args = { location = currentvendor, price = Config.Market[currentvendor].price  },
+                        arrow = true
+                    }
                 }
-            }
-            vendorMenuFirst[#vendorMenuFirst+1] = {
-                header = "⬅ "..Lang:t('menu.quit'),
-                txt = "",
-                params = {
-                    event = "rsg-vendor:client:closemenu",
-                }
-            }
-            exports['rsg-menu']:openMenu(vendorMenuFirst)
+            })
+            lib.showContext("buy_menu")
         else
             RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorOwner', function(result2)
                 if result2 == nil then
-                    local vendorMenuFirst = {
-                        {
-                            header = Lang:t('menu.market'),
-                            isMenuHeader = true
-                        },
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = Lang:t('menu.open_market'),
-                        txt = Lang:t('menu.open_market_sub'),
-                        icon = 'fa-solid fa-store',
-                        params = {
-                            isServer = true,
-                            event = "rsg-vendor:server:vendorGetShopItems",
-                            args = currentvendor
+                    lib.registerContext({
+                        id = 'market_menu',
+                        title = 'Market Menu',
+                        options = {
+                            {
+                                title = Lang:t('menu.open_market'),
+                                description = Lang:t('menu.open_market_sub'),
+                                icon = 'fa-solid fa-store',
+                                serverEvent = 'rsg-vendor:server:vendorGetShopItems',
+                                args = { location = currentvendor  },
+                                arrow = true
+                            },
+                            {
+                                title = Lang:t('menu.rob'),
+                                description = Lang:t('menu.rob_sub'),
+                                icon = 'fa-solid fa-gun',
+                                event = 'rsg-vendor:client:vendorRob',
+                                args = { location = currentvendor  },
+                                arrow = true
+                            },
                         }
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = Lang:t('menu.rob'),
-                        txt = Lang:t('menu.rob_sub'),
-                        icon = 'fa-solid fa-gun',
-                        params = {
-                            event = "rsg-vendor:client:vendorRob",
-                            args = currentvendor,
-                        }
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = "⬅ "..Lang:t('menu.quit'),
-                        txt = "",
-                        params = {
-                            event = "rsg-vendor:client:closemenu",
-                        }
-                    }
-                    exports['rsg-menu']:openMenu(vendorMenuFirst)
+                    })
+                    lib.showContext("market_menu")
                 else
-                    local vendorMenuFirst = {
-                        {
-                            header = Lang:t('menu.market'),
-                            isMenuHeader = true
-                        },
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = Lang:t('menu.open_market'),
-                        txt = Lang:t('menu.open_market_sub'),
-                        icon = 'fa-solid fa-store',
-                        params = {
-                            isServer = true,
-                            event = "rsg-vendor:server:vendorGetShopItems",
-                            args = currentvendor
+                    lib.registerContext({
+                        id = 'owner_menu',
+                        title = 'Owner Menu',
+                        options = {
+                            {
+                                title = Lang:t('menu.open_market'),
+                                description = Lang:t('menu.open_market_sub'),
+                                icon = 'fa-solid fa-store',
+                                serverEvent = 'rsg-vendor:server:vendorGetShopItems',
+                                args = { location = currentvendor  },
+                                arrow = true
+                            },
+                            {
+                                title = Lang:t('menu.refill'),
+                                description = Lang:t('menu.refill_sub'),
+                                icon = 'fa-solid fa-boxes-packing',
+                                event = 'rsg-vendor:client:vendorInvReFull',
+                                args = { },
+                                arrow = true
+                            },
+                            {
+                                title = Lang:t('menu.checkmoney'),
+                                description = Lang:t('menu.checkmoney_sub'),
+                                icon = 'fa-solid fa-sack-dollar',
+                                event = 'rsg-vendor:client:vendorCheckMoney',
+                                args = { },
+                                arrow = true
+                            },
+                            {
+                                title = Lang:t('menu.manage'),
+                                description = Lang:t('menu.manage_sub'),
+                                icon = 'fa-solid fa-sack-dollar',
+                                event = 'rsg-vendor:client:vendorSettings',
+                                args = { },
+                                arrow = true
+                            },
                         }
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = Lang:t('menu.refill'),
-                        txt = Lang:t('menu.refill_sub'),
-                        icon = 'fa-solid fa-boxes-packing',
-                        params = {
-                            event = "rsg-vendor:client:vendorInvReFull",
-                        }
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = Lang:t('menu.checkmoney'),
-                        txt = Lang:t('menu.checkmoney_sub'),
-                        icon = 'fa-solid fa-sack-dollar',
-                        params = {
-                            event = "rsg-vendor:client:vendorCheckMoney",
-                            args = data,
-                        }
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = Lang:t('menu.manage'),
-                        txt = Lang:t('menu.manage_sub'),
-                        icon = 'fa-solid fa-sack-dollar',
-                        params = {
-                            event = "rsg-vendor:client:vendorSettings",
-                            args = v,
-                        }
-                    }
-                    vendorMenuFirst[#vendorMenuFirst+1] = {
-                        header = "⬅ "..Lang:t('menu.quit'),
-                        txt = "",
-                        params = {
-                            event = "rsg-vendor:client:closemenu",
-                        }
-                    }
-                    exports['rsg-menu']:openMenu(vendorMenuFirst)
+                    })
+                    lib.showContext("owner_menu")
                 end
             end, currentvendor)
         end
     end, currentvendor)
 end)
 
+-- stall inventory
 RegisterNetEvent("rsg-vendor:client:vendorInv", function(store_inventory, data)
     RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorS', function(result)
-        local vendorMenuItem = {
-            {
-                header = "| "..Lang:t('menu.market').." : "..result[1].displayname.." |",
-                txt = Lang:t('menu.refill_in'),
-                isMenuHeader = true
-            },
-        }
-        for k, v in pairs(store_inventory) do
+        local options = {}
+        for k, v in ipairs(store_inventory) do
             if store_inventory[k].stock > 0 then
-            vendorMenuItem[#vendorMenuItem+1] = {
-                header = "<img src=nui://rsg-inventory/html/images/"..RSGCore.Shared.Items[store_inventory[k].items].image.." width=20px> ‎ ‎ "..RSGCore.Shared.Items[store_inventory[k].items].label,
-                txt = Lang:t('menu.instock')..": "..store_inventory[k].stock.." | "..Lang:t('menu.price')..": $"..string.format("%.2f", store_inventory[k].price),
-                params = {
-                    event = "rsg-vendor:client:vendorInvInput",
+                options[#options + 1] = {
+                    title = RSGCore.Shared.Items[store_inventory[k].items].label,
+                    description = 'Stock: '..store_inventory[k].stock..' | '..Lang:t('menu.price')..string.format("%.2f", store_inventory[k].price),
+                    icon = 'fa-solid fa-box',
+                    event = 'rsg-vendor:client:vendorInvInput',
                     args = store_inventory[k],
+                    arrow = true,
                 }
-            }
+            else
+                RSGCore.Functions.Notify("Stall Empty!", 'error')
+                return
             end
         end
-
-        vendorMenuItem[#vendorMenuItem+1] = {
-            header = "⬅ "..Lang:t('menu.return_m'),
-            txt = "",
-            params = {
-                event = "rsg-vendor:client:vendorMenu",
-            }
-        }
-        exports['rsg-menu']:openMenu(vendorMenuItem)
+        lib.registerContext({
+            id = 'shopinv_menu',
+            title = "Shop Menu",
+            position = 'top-right',
+            menu = 'owner_menu',
+            onBack = function() end,
+            options = options
+        })
+        lib.showContext('shopinv_menu')
     end, currentvendor)
 end)
 
+-- owners refill stall
 RegisterNetEvent("rsg-vendor:client:vendorInvReFull", function()
     RSGCore.Functions.GetPlayerData(function(PlayerData)
         RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorS', function(result)
-            if PlayerData.items == nil then 
-                local vendorMenuNoInvItem = {
-                    {
-                        header = "| "..Lang:t('menu.market').." : "..result[1].displayname.." |",
-                        txt = Lang:t('menu.market_sub'),
-                        isMenuHeader = true
-                    },
-                }
-                vendorMenuNoInvItem[#vendorMenuNoInvItem+1] = {
-                    header = Lang:t('menu.no_item'),
-                    txt = Lang:t('menu.no_item_sub'),
-                    isMenuHeader = true
-                }
-                vendorMenuNoInvItem[#vendorMenuNoInvItem+1] = {
-                    header = "⬅ "..Lang:t('menu.return_m'),
-                    txt = "",
-                    params = {
-                        event = "rsg-vendor:client:vendorMenu",
-                    }
-                }
-                exports['rsg-menu']:openMenu(vendorMenuNoInvItem)
-            else
-                local vendorMenuInvItem = {
-                    {
-                        header = "| "..Lang:t('menu.market').." : "..result[1].displayname.." |",
-                        txt = Lang:t('menu.market_sub'),
-                        isMenuHeader = true
-                    },
-                }
-                for k, v in pairs(PlayerData.items) do
-                    --print(PlayerData.items[k].name.." "..PlayerData.items[k].amount)
-                    if PlayerData.items[k].amount > 0 and PlayerData.items[k].type == "item" then
-                    vendorMenuInvItem[#vendorMenuInvItem+1] = {
-                        header = "<img src=nui://rsg-inventory/html/images/"..PlayerData.items[k].image.." width=20px> ‎ ‎ "..PlayerData.items[k].label,
-                        txt = Lang:t('menu.in_inv').." : "..PlayerData.items[k].amount,
-                        params = {
-                            event = "rsg-vendor:client:vendorInvReFillInput",
-                            args = PlayerData.items[k],
+            if PlayerData.items == nil then
+                lib.registerContext({
+                    id = 'no_inventory',
+                    title = 'Market Stall',
+                    menu = 'owner_menu',
+                    onBack = function() end,
+                    options = {
+                        {
+                            title = Lang:t('menu.market').." : "..result[1].displayname,
+                            description = Lang:t('menu.no_item_sub'),
+                            icon = 'fa-solid fa-file-invoice-dollar',
+                            arrow = false
                         }
                     }
-                    end
-                end
-
-                vendorMenuInvItem[#vendorMenuInvItem+1] = {
-                    header = "⬅ "..Lang:t('menu.return_m'),
-                    txt = "",
-                    params = {
-                        event = "rsg-vendor:client:vendorMenu",
+                })
+                lib.showContext("no_inventory")
+            else
+                local options = {}
+                for k, v in ipairs(PlayerData.items) do
+                    options[#options + 1] = {
+                        title = PlayerData.items[k].label,
+                        description = 'inventory amount : '..PlayerData.items[k].amount,
+                        icon = 'fa-solid fa-box',
+                        event = 'rsg-vendor:client:vendorInvReFillInput',
+                        args = PlayerData.items[k],
+                        arrow = true,
                     }
-                }
-                exports['rsg-menu']:openMenu(vendorMenuInvItem)
+                end
+                lib.registerContext({
+                    id = 'inv_menu',
+                    title = "Shop Inventory",
+                    position = 'top-right',
+                    menu = 'owner_menu',
+                    onBack = function() end,
+                    options = options
+                })
+            lib.showContext('inv_menu')
             end
         end, currentvendor)
     end)
 end)
 
+-- owner money menu
 RegisterNetEvent("rsg-vendor:client:vendorCheckMoney", function()
-    --print(1)
     RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorGetMoney', function(checkmoney)
         RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorS', function(result)
-            --print(checkmoney)
-            local vendorMenuMoney = {
-                {
-                    header = "| "..Lang:t('menu.market').." : "..result[1].displayname.." |",
-                    txt = Lang:t('menu.checkmoney_in'),
-                    isMenuHeader = true
-                },
-            }
-            vendorMenuMoney[#vendorMenuMoney+1] = {
-                header = Lang:t('menu.currentmoney').." : $" ..string.format("%.2f", checkmoney.money),
-                txt = "",
-                isMenuHeader = true
-            }
-            vendorMenuMoney[#vendorMenuMoney+1] = {
-                header = Lang:t('menu.withdraw'),
-                txt = Lang:t('menu.withdraw_sub'),
-                params = {
-                    event = "rsg-vendor:client:vendorWithdraw",
-                    args =  checkmoney,
+            lib.registerContext({
+                id = 'money_menu',
+                title = 'Balance : $' ..string.format("%.2f", checkmoney.money),
+                menu = 'owner_menu',
+                onBack = function() end,
+                options = {
+                    {
+                        title = Lang:t('menu.withdraw'),
+                        description = Lang:t('menu.withdraw_sub'),
+                        icon = 'fa-solid fa-money-bill-transfer',
+                        event = 'rsg-vendor:client:vendorWithdraw',
+                        args = checkmoney,
+                        arrow = true
+                    },
                 }
-            }
-            vendorMenuMoney[#vendorMenuMoney+1] = {
-                header = "⬅ "..Lang:t('menu.return_m'),
-                txt = "",
-                params = {
-                    event = "rsg-vendor:client:vendorMenu",
-                }
-            }
-            exports['rsg-menu']:openMenu(vendorMenuMoney)
+            })
+            lib.showContext("money_menu")
         end, currentvendor)
     end, currentvendor)
 end)
 
-RegisterNetEvent("rsg-vendor:client:vendorAchat", function(currentvendor)
-    price = Config.Market[currentvendor].price
+-- owner settings menu
+RegisterNetEvent('rsg-vendor:client:vendorSettings', function()
     RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorS', function(result)
-        local vendorAchat = {
-            {
-                header = "| "..Lang:t('menu.market').." : " ..result[1].displayname.." |",
-                txt = Lang:t('menu.buy_price').." : $" ..string.format("%.2f", Config.Market[currentvendor].price),
-                isMenuHeader = true
-            },
-        }
-        vendorAchat[#vendorAchat+1] = {
-            header = Lang:t('menu.confirm_buy'),
-            txt = Lang:t('menu.confirm_buy_sub'),
-            params = {
-                event = "rsg-vendor:client:vendorBuyEtal",
-                args = currentvendor, price,
+        lib.registerContext({
+            id = 'settings_menu',
+            title = Lang:t('menu.market')..' : ' ..result[1].displayname,
+            menu = 'owner_menu',
+            onBack = function() end,
+            options = {
+                {
+                    title = Lang:t('menu.manage_in_name'),
+                    description = Lang:t('menu.manage_in_name_sub'),
+                    icon = 'fa-solid fa-file-signature',
+                    event = 'rsg-vendor:client:vendorName',
+                    arrow = true
+                },
+                {
+                    title = Lang:t('menu.manage_in_give_market'),
+                    description = Lang:t('menu.manage_in_give_market_sub'),
+                    icon = 'fa-solid fa-handshake',
+                    event = 'rsg-vendor:client:vendorGiveBusiness',
+                    arrow = true
+                },
             }
-        }
-        vendorAchat[#vendorAchat+1] = {
-            header = "⬅ "..Lang:t('menu.quit'),
-            txt = "",
-            params = {
-                event = "rsg-vendor:client:closemenu",
-            }
-        }
-        exports['rsg-menu']:openMenu(vendorAchat)
-    end, currentvendor)
-end)
-
-RegisterNetEvent("rsg-vendor:client:vendorSettings", function()
-    RSGCore.Functions.TriggerCallback('rsg-vendor:server:vendorS', function(result)
-        local vendorSettings = {
-            {
-                header = "| "..Lang:t('menu.market').." : " ..result[1].displayname.." |",
-                txt = Lang:t('menu.manage_in'),
-                isMenuHeader = true
-            },
-        }
-        vendorSettings[#vendorSettings+1] = {
-            header = Lang:t('menu.manage_in_name'),
-            txt = Lang:t('menu.manage_in_name_sub'),
-            params = {
-                event = "rsg-vendor:client:vendorName",
-                args = "",
-            }
-        }
-        vendorSettings[#vendorSettings+1] = {
-            header = Lang:t('menu.manage_in_give_market'),
-            txt = Lang:t('menu.manage_in_give_market_sub'),
-            params = {
-                event = "rsg-vendor:client:vendorGiveBusiness",
-                args = "",
-            }
-        }
-        vendorSettings[#vendorSettings+1] = {
-            header = "⬅ "..Lang:t('menu.return_m'),
-            txt = "",
-            params = {
-                event = "rsg-vendor:client:vendorMenu",
-            }
-        }
-        exports['rsg-menu']:openMenu(vendorSettings)
+        })
+        lib.showContext("settings_menu")
     end, currentvendor)
 end)
 
@@ -380,7 +269,7 @@ end)
 
 -- vendor withdraw
 RegisterNetEvent('rsg-vendor:client:vendorWithdraw', function(checkmoney)
-	local money = checkmoney.money
+    local money = checkmoney.money
     local input = lib.inputDialog('Max Withdraw: $'..string.format("%.2f", money), {
         { 
             label = Lang:t('input.withdraw_champ'),
@@ -393,12 +282,12 @@ RegisterNetEvent('rsg-vendor:client:vendorWithdraw', function(checkmoney)
     if not input then
         return
     end
-	
-	if tonumber(input[1]) == nil then
-		return
-	end
+    
+    if tonumber(input[1]) == nil then
+        return
+    end
 
-	if money >= tonumber(input[1]) then
+    if money >= tonumber(input[1]) then
         TriggerServerEvent('rsg-vendor:server:vendorWithdraw', currentvendor, tonumber(input[1]))
     else
         RSGCore.Functions.Notify(("Invalid Amount"), 'error')
@@ -473,18 +362,11 @@ end)
 -- Event
 -------------------------------------------------------------------------------------------
 
-RegisterNetEvent("rsg-vendor:client:vendorBuyEtal")
-AddEventHandler("rsg-vendor:client:vendorBuyEtal", function()
-    --print(currentvendor)
-    --print(price)
-    TriggerServerEvent('rsg-vendor:server:vendorBuyEtal', currentvendor, price)
-end)
-
 RegisterNetEvent("Stores:ReturnStoreItems")
-AddEventHandler("Stores:ReturnStoreItems", function(data, data2)
-    store_inventory = data
+AddEventHandler("Stores:ReturnStoreItems", function(data2, data3)
+    store_inventory = data2
     Wait(100)
-    TriggerEvent('rsg-vendor:client:vendorInv', store_inventory, data2)
+    TriggerEvent('rsg-vendor:client:vendorInv', store_inventory, data3)
 end)
 
 -------------------------------------------------------------------------------------------
@@ -518,20 +400,20 @@ Citizen.CreateThread(function()
 end)
 
 function _CreatePed(coords, heading)
-    local Ped = RandomPed()
-    while not HasModelLoaded( GetHashKey(Ped) ) do
+    local ped = RandomPed()
+    while not HasModelLoaded( GetHashKey(ped) ) do
         Wait(500)
-        modelrequest( GetHashKey(Ped) )
+        modelrequest( GetHashKey(ped) )
     end
 
-    local npc = CreatePed(GetHashKey(Ped), coords, heading, false, false, 0, 0)
+    local npc = CreatePed(GetHashKey(ped), coords, heading, false, false, 0, 0)
     Citizen.InvokeNative(0x283978A15512B2FE, npc, true)
     ClearPedTasks(npc)
     RemoveAllPedWeapons(npc)
-    SET_PED_RELATIONSHIP_GROUP_HASH(npc, GetHashKey(Ped))
+    SET_PED_RELATIONSHIP_GROUP_HASH(npc, GetHashKey(ped))
     SetEntityCanBeDamagedByRelationshipGroup(npc, false, `PLAYER`)
     SetEntityAsMissionEntity(npc, true, true)
-    SetModelAsNoLongerNeeded(GetHashKey(Ped))
+    SetModelAsNoLongerNeeded(GetHashKey(ped))
     SetBlockingOfNonTemporaryEvents(npc,true)
     ClearPedTasksImmediately(npc)
     FreezeEntityPosition(npc, false)

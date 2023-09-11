@@ -87,12 +87,12 @@ end)
 -- Event
 -------------------------------------------------------------------------------------------
 
-RegisterServerEvent("rsg-vendor:server:vendorGetShopItems")
-AddEventHandler("rsg-vendor:server:vendorGetShopItems", function(shopName)
+RegisterServerEvent('rsg-vendor:server:vendorGetShopItems')
+AddEventHandler('rsg-vendor:server:vendorGetShopItems', function(data)
     local _source = source
-    exports['oxmysql']:execute('SELECT * FROM market_items WHERE marketid = ?', {shopName}, function(data)
-        exports['oxmysql']:execute('SELECT * FROM market_owner WHERE marketid = ?', {shopName}, function(data2)
-            TriggerClientEvent("Stores:ReturnStoreItems", _source, data, data2)
+    MySQL.query('SELECT * FROM market_items WHERE marketid = ?', {data.location}, function(data2)
+        MySQL.query('SELECT * FROM market_owner WHERE marketid = ?', {data.location}, function(data3)
+            TriggerClientEvent("Stores:ReturnStoreItems", _source, data2, data3)
         end)
     end)
 end)
@@ -173,18 +173,18 @@ AddEventHandler("rsg-vendor:server:vendorWithdraw", function(location, omoney)
 end)
 
 
-RegisterServerEvent("rsg-vendor:server:vendorBuyEtal")
-AddEventHandler("rsg-vendor:server:vendorBuyEtal", function(location, price)
+RegisterServerEvent('rsg-vendor:server:vendorBuyStall')
+AddEventHandler('rsg-vendor:server:vendorBuyStall', function(data)
     local src = source
     local Player = RSGCore.Functions.GetPlayer(src)
     local Playercid = Player.PlayerData.citizenid
     
-    exports.oxmysql:execute('SELECT * FROM market_owner WHERE marketid = ? AND owned = 0',{location} , function(result)
+    exports.oxmysql:execute('SELECT * FROM market_owner WHERE marketid = ? AND owned = 0',{data.location} , function(result)
         if result[1] ~= nil then
-            if Player.Functions.RemoveMoney("cash", price, "etal-bought") then
-                exports.oxmysql:execute('UPDATE market_owner SET owned = ?, citizenid = ? WHERE marketid = ?',{1, Playercid, location})
+            if Player.Functions.RemoveMoney("cash", data.price, "stall-bought") then
+                exports.oxmysql:execute('UPDATE market_owner SET owned = ?, citizenid = ? WHERE marketid = ?',{1, Playercid, data.location})
                 TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.buy_t'), 'success')
-                TriggerEvent('rsg-log:server:CreateLog', 'shops', 'Market Stall', 'green', "**"..GetPlayerName(Player.PlayerData.source) .. " (citizenid: "..Player.PlayerData.citizenid.." | id: "..Player.PlayerData.source..")** bought a stall $"..price..".")
+                TriggerEvent('rsg-log:server:CreateLog', 'shops', 'Market Stall', 'green', "**"..GetPlayerName(Player.PlayerData.source) .. " (citizenid: "..Player.PlayerData.citizenid.." | id: "..Player.PlayerData.source..")** bought a stall $"..data.price..".")
             else
                 TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.player_no_money'), 'error')
                 return
