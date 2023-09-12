@@ -110,9 +110,6 @@ RegisterNetEvent("rsg-vendor:client:vendorInv", function(store_inventory, data)
                     args = store_inventory[k],
                     arrow = true,
                 }
-            else
-                RSGCore.Functions.Notify("Stall Empty!", 'error')
-                return
             end
         end
         lib.registerContext({
