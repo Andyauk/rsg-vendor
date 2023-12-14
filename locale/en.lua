@@ -1,4 +1,4 @@
-local en = {
+local Translations = {
   error = {
     error = 'Error, please contact the support',
     error_cid = 'Error, the cid is not recognized',
@@ -85,6 +85,6 @@ local en = {
 ----------------------------------------------------------------------------------------
 
 Lang = Locale:new({
-  phrases = en,
-  warnOnMissing = true
+    phrases = Translations,
+    warnOnMissing = true
 })
