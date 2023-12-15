@@ -1,4 +1,4 @@
-local pt-br = {
+Translations = Translations or {
   error = {
     error = 'Erro, por favor, entre em contato com o suporte',
     error_cid = 'Erro, o CID não é reconhecido',
