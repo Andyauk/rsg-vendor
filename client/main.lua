@@ -287,7 +287,7 @@ RegisterNetEvent('rsg-vendor:client:vendorWithdraw', function(checkmoney)
     if money >= tonumber(input[1]) then
         TriggerServerEvent('rsg-vendor:server:vendorWithdraw', currentvendor, tonumber(input[1]))
     else
-        RSGCore.Functions.Notify(("Invalid Amount"), 'error')
+        lib.notify({ title = 'Error', description = 'Invalid Amount', type = 'error', duration = 5000 })
     end
 end)
 
@@ -323,7 +323,7 @@ RegisterNetEvent('rsg-vendor:client:vendorInvReFillInput', function(data)
             if amount >= tonumber(input[1]) and tonumber(input[2]) ~= nil then
                 TriggerServerEvent('rsg-vendor:server:vendorInvReFill', currentvendor, name, input[1], tonumber(input[2]))
             else
-                RSGCore.Functions.Notify('Something went wrong, check you have the correct amount and price!', 'error')
+                lib.notify({ title = 'Error', description = 'Something went wrong, check you have the correct amount and price!', type = 'error', duration = 5000 })
             end
             return
         end
@@ -351,7 +351,7 @@ RegisterNetEvent('rsg-vendor:client:vendorInvInput', function(data)
     if stock >= tonumber(input[1]) then
         TriggerServerEvent('rsg-vendor:server:vendorPurchaseItem', currentvendor, name, input[1])
     else
-        RSGCore.Functions.Notify(("Invalid Amount"), 'error')
+        lib.notify({ title = 'Error', description = 'Invalid Amount', type = 'error', duration = 5000 })
     end
 end)
 
@@ -449,7 +449,7 @@ RegisterNetEvent("rsg-vendor:client:vendorRob", function()
                             SetBlockingOfNonTemporaryEvents(peds[i],false)
                             TaskCombatPed(peds[i], PlayerPedId(), 0, 16)
                             Wait(100)
-                            RSGCore.Functions.Notify(Lang:t('rob.fail'), 'error')
+                            lib.notify({ title = 'Error', description = Lang:t('rob.fail'), type = 'error', duration = 5000 })
                             Wait(20000)
                             DeletePed(peds[i])
                             Wait(10000)
@@ -476,11 +476,11 @@ RegisterNetEvent("rsg-vendor:client:vendorRob", function()
                     end
                 end
             else
-                RSGCore.Functions.Notify(Lang:t('rob.already'), 'error')
+                lib.notify({ title = 'Error', description = Lang:t('rob.already'), type = 'error', duration = 5000 })
             end
         end, currentvendor)
     else
-        RSGCore.Functions.Notify(Lang:t('rob.need_gun'), 'error')
+        lib.notify({ title = 'Error', description = Lang:t('rob.need_gun'), type = 'error', duration = 5000 })
     end
 end)
 

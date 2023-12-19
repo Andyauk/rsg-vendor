@@ -149,11 +149,11 @@ AddEventHandler("rsg-vendor:server:vendorPurchaseItem", function(location, item,
                         local moneymarket = data2[1].money + price
                         exports.oxmysql:execute('UPDATE market_owner SET money = ? WHERE marketid = ?',{moneymarket, location})
                     end)
-                    TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.buy_prod').." "..amount.."x "..RSGCore.Shared.Items[item].label, 'success')
+                    TriggerClientEvent('ox_lib:notify', src, {title = Lang:t('success.buy_prod'), description = amount.."x "..RSGCore.Shared.Items[item].label, type = 'success', duration = 5000 })
                 end
             end)
         else 
-            TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.player_no_money'), 'error')
+            TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('error.player_no_money'), type = 'error', duration = 5000 })
         end
     end)
 end)
@@ -179,7 +179,7 @@ AddEventHandler("rsg-vendor:server:vendorInvReFill", function(location, item, qt
             Player.Functions.RemoveItem(itemv, qt)
             TriggerClientEvent('inventory:client:ItemBox', src, RSGCore.Shared.Items[itemv], "remove")
         end
-        TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.refill').." " ..qt.. "x " ..item.label, 'success')
+        TriggerClientEvent('ox_lib:notify', src, {title = 'Success', description = Lang:t('success.refill').." " ..qt.. "x " ..item.label, type = 'success', duration = 5000 })
     end)
 end)
 
@@ -214,10 +214,10 @@ AddEventHandler('rsg-vendor:server:vendorBuyStall', function(data)
         if result[1] ~= nil then
             if Player.Functions.RemoveMoney("cash", data.price, "stall-bought") then
                 exports.oxmysql:execute('UPDATE market_owner SET owned = ?, citizenid = ? WHERE marketid = ?',{1, Playercid, data.location})
-                TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.buy_t'), 'success')
+                TriggerClientEvent('ox_lib:notify', src, {title = 'Success', description = Lang:t('success.buy_t'), type = 'success', duration = 5000 })
                 TriggerEvent('rsg-log:server:CreateLog', 'shops', 'Market Stall', 'green', "**"..GetPlayerName(Player.PlayerData.source) .. " (citizenid: "..Player.PlayerData.citizenid.." | id: "..Player.PlayerData.source..")** bought a stall $"..data.price..".")
             else
-                TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.player_no_money'), 'error')
+                TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('error.player_no_money'), type = 'error', duration = 5000 })
                 return
             end
         end
@@ -236,14 +236,14 @@ AddEventHandler("rsg-vendor:server:vendorGiveBusiness", function(location, tocid
             MySQL.Async.fetchAll("SELECT * FROM market_owner WHERE citizenid=@citizenid AND owned=1 AND marketid=@marketid", { ['@marketid'] = location, ['@citizenid'] = Playercid }, function(result2)
                 if result2[1] ~= nil then
                     exports.oxmysql:execute('UPDATE market_owner SET citizenid = ? WHERE marketid = ?',{tocid, location})
-                    TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.transfert_t'), 'success')
+                    TriggerClientEvent('ox_lib:notify', src, {title = 'Success', description = Lang:t('success.transfert_t'), type = 'success', duration = 5000 })
                 else
-                    TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.error'), 'error')
+                    TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('error.error'), type = 'error', duration = 5000 })
                     return
                 end
             end)
         else
-            TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.error_cid'), 'error')
+            TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('error.error_cid'), type = 'error', duration = 5000 })
             return
         end
     end)
@@ -266,9 +266,9 @@ AddEventHandler("rsg-vendor:server:vendorName", function(location, name)
     exports.oxmysql:execute('SELECT * FROM market_owner WHERE marketid = ? AND citizenid = ?',{location, Playercid} , function(result)
         if result[1] ~= nil then
             exports.oxmysql:execute('UPDATE market_owner SET displayname = ? WHERE marketid = ?',{name, location})
-            TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.newname'), 'success')
+            TriggerClientEvent('ox_lib:notify', src, {title = 'Success', description = Lang:t('success.newname'), type = 'success', duration = 5000 })
         else
-            TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.error'), 'error')
+            TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('error.error'), type = 'error', duration = 5000 })
             return
         end
     end)
@@ -293,9 +293,9 @@ AddEventHandler("rsg-vendor:server:vendorRob", function(location)
             local rpmoney = result[1].money / Config.Percent
             exports.oxmysql:execute('UPDATE market_owner SET money = ?, robbery = ? WHERE marketid = ?',{rmoney, 1, location})
             Player.Functions.AddMoney("cash", rpmoney, "robbery")
-            TriggerClientEvent('RSGCore:Notify', src, Lang:t('success.robreward')..rpmoney, 'success')
+            TriggerClientEvent('ox_lib:notify', src, {title = 'Success', description = Lang:t('success.robreward')..rpmoney, type = 'success', duration = 5000 })
         else
-            TriggerClientEvent('RSGCore:Notify', src, Lang:t('error.market_no_money'), 'error')
+            TriggerClientEvent('ox_lib:notify', src, {title = 'Error', description = Lang:t('error.market_no_money'), type = 'error', duration = 5000 })
             return
         end
     end)
