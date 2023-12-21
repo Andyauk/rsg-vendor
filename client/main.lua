@@ -105,7 +105,7 @@ RegisterNetEvent("rsg-vendor:client:vendorInv", function(store_inventory, data)
                 options[#options + 1] = {
                     title = RSGCore.Shared.Items[store_inventory[k].items].label,
                     description = 'Stock: '..store_inventory[k].stock..' | '..Lang:t('menu.price')..string.format("%.2f", store_inventory[k].price),
-                    icon = 'fa-solid fa-box',
+                    icon = "nui://"..Config.img..RSGCore.Shared.Items[store_inventory[k].items].image,
                     event = 'rsg-vendor:client:vendorInvInput',
                     args = store_inventory[k],
                     arrow = true,
