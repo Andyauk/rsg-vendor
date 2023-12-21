@@ -1,5 +1,8 @@
 Config = {}
 
+-- Inventory Images
+Config.img = "rsg-inventory/html/images/"
+
 -- For language go to Locale/lang.lua
 
 Config.AutoAddMarket = true
