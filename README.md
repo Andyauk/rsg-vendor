@@ -3,9 +3,6 @@
 - youtube : https://www.youtube.com/channel/UCikEgGfXO-HCPxV5rYHEVbA
 - github : https://github.com/Rexshack-RedM
 
-# Framework QRCore RedM Edition
-- https://github.com/QRCore-RedM-Re
-
 # Dependancies
 - rsg-core
 - rsg-menu
